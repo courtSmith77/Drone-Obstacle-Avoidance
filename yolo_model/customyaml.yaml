@@ -1,0 +1,10 @@
+path: # dataset root dir
+train: # train images (relative to 'path')
+val: # val images (relative to 'path')
+
+# Classes
+names:
+  0: right
+  1: left
+  2: up
+  3: down
