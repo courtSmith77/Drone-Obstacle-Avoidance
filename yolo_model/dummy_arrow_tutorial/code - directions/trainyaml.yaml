@@ -1,0 +1,10 @@
+path: /home/csmith/Desktop/School/Winter 2024/Winter Project/ws/Winter-Project/yolo_model/dummy_arrow_tutorial/code - directions/data # dataset root dir
+train: images/train # train images (relative to 'path')
+val: images/train # val images (relative to 'path')
+
+# Classes
+names:
+  0: right
+  1: left
+  2: up
+  3: down
