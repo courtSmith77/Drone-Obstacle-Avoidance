@@ -11,12 +11,12 @@ if torch.cuda.is_available():
 
     print('################ found gpu ##########')
     # Use the model with cuda 
-    model.train(data="trainyaml.yaml", epochs=200, device=device_name)  # train the model
+    model.train(data="trainyaml.yaml", epochs=150, device=device_name)  # train the model
 
     print('################ input it here ##########')
 else :
     print('################ NOT using cuda ##########')
-    model.train(data="trainyaml.yaml", epochs=200)  # train the model
+    model.train(data="trainyaml.yaml", epochs=150)  # train the model
 
 # metrics = model.val()
 # print(metrics)
