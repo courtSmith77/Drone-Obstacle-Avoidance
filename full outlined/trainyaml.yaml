@@ -1,0 +1,7 @@
+path: /home/csmith/Desktop/School/Winter 2024/Winter Project/ws/Winter-Project/outlined/data # dataset root dir
+train: images/train # train images (relative to 'path')
+val: images/test # val images (relative to 'path')
+
+# Classes
+names:
+  0: arrow
