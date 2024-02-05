@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 from rcl_interfaces.msg import ParameterDescriptor
 from djitellopy import Tello
-from std_msgs.msg import Empty
+from std_srvs.srv import Empty
 from flying_interfaces.msg import LiveFeed
 
 
@@ -63,14 +63,18 @@ class Drone(Node):
 
     def callback_takeoff(self, request, response):
 
+        print("Taking off ...")
         self.drone.takeoff()
+        print("Take off complete ...")
 
         return response
     
     def callback_land(self, request, response):
 
-        self.drone.land()
+        print("Landing ...")
         self.drone.streamoff()
+        self.drone.land()
+        print("Landing complete ...")
 
         return response
 

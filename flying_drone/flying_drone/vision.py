@@ -52,18 +52,19 @@ def detect_arrow(model, img):
         x1, y1, x2, y2, score, detected = result
 
     if detected is not None:
-        return detected
-    else :
         return [x1, y1, x2, y2]
+    else :
+        return None
     
-def classify_direction(model, img, box):
+def classify_direction(model, img, box, node):
 
     yolo_corners = [[box[0],box[3]],[box[2],box[3]],[box[2],box[1]],[box[0],box[1]]] # top_l, top_r, bot_r, bot_l
 
     transformed = perspective_transform(img, yolo_corners)
     flipped = cv2.flip(transformed, -1)
+    img_depth = cv2.convertScaleAbs(flipped)
 
-    pred = model.predict(flipped)
+    pred = model.predict(img_depth)
 
     class_id = None
     if pred is not None:
@@ -78,9 +79,9 @@ class Vision(Node):
         super().__init__("vision")
 
         # initialize parameters
-        self.declare_parameter("model_detect_path")
+        self.declare_parameter("model_detect_path", None)
         self.model_detect_path = self.get_parameter("model_detect_path").get_parameter_value().string_value
-        self.declare_parameter("model_classify_path")
+        self.declare_parameter("model_classify_path", None)
         self.model_classify_path = self.get_parameter("model_classify_path").get_parameter_value().string_value
         
         # initialize model
@@ -94,7 +95,7 @@ class Vision(Node):
         
         # create publishers
         self.pub_detect = self.create_publisher(Detection, "/detection", 10)
-        self.pub_class = self.create_client(Classify, "/classify", 10)
+        self.pub_class = self.create_publisher(Classify, "/classify", 10)
 
         self.state = State.CONNECTING_FEED
 
@@ -104,7 +105,7 @@ class Vision(Node):
         """Call timer at 100 hz."""
 
         if self.state == State.CONNECTING_FEED:
-            self.get_logger().info(f"Waiting for camera feed")
+            self.get_logger().info("Waiting for camera feed")
         
         if self.state == State.DETECTING:
 
@@ -113,25 +114,29 @@ class Vision(Node):
 
             if box is not None:
 
-                self.pub_detect.publish(box)
+                msg_box = Detection()
+                msg_box.box = box
+                self.pub_detect.publish(msg_box)
                 self.box = box
                 
                 self.state = State.CLASSIFYING
         
         if self.state == State.CLASSIFYING:
 
-            class_id = classify_direction(self.model_classify, self.detected_img, self.box)
+            class_id = classify_direction(self.model_classify, self.detected_img, self.box, self)
 
             if class_id is not None:
-
-                self.pub_class.publish(class_id)
+                
+                msg_class = Classify()
+                msg_class.direction = class_id
+                self.pub_class.publish(msg_class)
 
                 self.state = State.DETECTING
 
 
     def callback_livefeed(self, msg):
 
-        img_flat = msg.img_flat
+        img_flat = np.array(msg.img_flat)
         img_shape = msg.img_shape
 
         self.live_img = img_flat.reshape(img_shape)

@@ -54,6 +54,8 @@ while True:
             transformed = perspective_transform(img, yolo_corners)
             flipped = cv2.flip(transformed, -1)
 
+            print(f"Flipped depth dtype = {flipped.dtype}")
+
             pred = model_classify.predict(flipped)
 
             class_id = None
