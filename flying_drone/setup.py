@@ -10,6 +10,9 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name, ['config/classify_best.pt']),
+        ('share/' + package_name, ['config/detect_best.pt']),
+        ('share/' + package_name, ['launch/visual.launch.xml']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,7 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'drone = flying_drone.drone:main'
+            'drone = flying_drone.drone:main',
+            'vision = flying_drone.vision:main'
         ],
     },
 )

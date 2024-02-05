@@ -7,7 +7,6 @@ from std_msgs.msg import Empty
 from flying_interfaces.msg import LiveFeed
 
 
-
 class State(Enum):
     """
     Current state of the system.
@@ -31,23 +30,24 @@ class Drone(Node):
 
         self.connect_drone()
 
+        # create publisher
         self.pub_live_feed = self.create_publisher(LiveFeed, "/live_feed", 10)
 
+        # create services
+        self.srv_takeoff = self.create_service(Empty, "takeoff", self.callback_takeoff)
+        self.srv_land = self.create_service(Empty, "land", self.callback_land)
         
         self.timer = self.create_timer(0.01, self.timer_callback)
 
     def timer_callback(self):
         """Call timer at 100 hz."""
 
+        # publish to live footage
         image = self.frame_reader.frame
-        self.get_logger().info(f"Image type: {type(image)}")
-        self.get_logger().info(f"Imape shape: {image.shape}")
         msg_image = LiveFeed()
         msg_image.img_flat = image.flatten()
         msg_image.img_shape = image.shape
         self.pub_live_feed.publish(msg_image)
-
-
 
     def connect_drone(self):
 
@@ -60,8 +60,19 @@ class Drone(Node):
 
         # Get the frame reader
         self.frame_reader = self.drone.get_frame_read()
-        
-   
+
+    def callback_takeoff(self, request, response):
+
+        self.drone.takeoff()
+
+        return response
+    
+    def callback_land(self, request, response):
+
+        self.drone.land()
+        self.drone.streamoff()
+
+        return response
 
 
 def main(args=None):

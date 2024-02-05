@@ -1,0 +1,10 @@
+<launch>
+
+    <node pkg="flying_drone" exec="drone"/>
+
+    <node pkg="flying_drone" exec="vision" >
+        <param name="model_detect_path" from="$(find-pkg-share flying_drone)/detect_best.pt"/>
+        <param name="model_classify_path" from="$(find-pkg-share flying_drone)/classify_best.pt"/>
+    </node>
+
+</launch>

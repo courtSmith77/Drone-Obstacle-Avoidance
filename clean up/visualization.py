@@ -1,11 +1,7 @@
 from ultralytics import YOLO
 from djitellopy import Tello
-import torch
-import os
 import cv2
 from cropping import perspective_transform
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 
 
 class flyTello():
