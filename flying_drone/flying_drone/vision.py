@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 
 
+
 class State(Enum):
     """
     Current state of the system.
@@ -79,9 +80,9 @@ class Vision(Node):
         super().__init__("vision")
 
         # initialize parameters
-        self.declare_parameter("model_detect_path", None)
+        self.declare_parameter("model_detect_path", "")
         self.model_detect_path = self.get_parameter("model_detect_path").get_parameter_value().string_value
-        self.declare_parameter("model_classify_path", None)
+        self.declare_parameter("model_classify_path", "")
         self.model_classify_path = self.get_parameter("model_classify_path").get_parameter_value().string_value
         
         # initialize model
@@ -99,10 +100,10 @@ class Vision(Node):
 
         self.state = State.CONNECTING_FEED
 
-        self.timer = self.create_timer(0.01, self.timer_callback)
+        self.timer = self.create_timer(0.1, self.timer_callback)
 
     def timer_callback(self):
-        """Call timer at 100 hz."""
+        """Call timer at 10 hz."""
 
         if self.state == State.CONNECTING_FEED:
             self.get_logger().info("Waiting for camera feed")

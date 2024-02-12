@@ -7,4 +7,8 @@
         <param name="model_classify_path" value="$(find-pkg-share flying_drone)/classify_best.pt"/>
     </node>
 
+    <node pkg="flying_drone" exec="control" />
+
+    <node pkg="rviz2" exec="rviz2" />
+
 </launch>

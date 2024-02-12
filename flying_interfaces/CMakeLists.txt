@@ -16,6 +16,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/LiveFeed.msg"
   "msg/Detection.msg"
   "msg/Classify.msg"
+  "msg/Command.msg"
 )
 
 if(BUILD_TESTING)

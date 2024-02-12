@@ -24,7 +24,8 @@ setup(
     entry_points={
         'console_scripts': [
             'drone = flying_drone.drone:main',
-            'vision = flying_drone.vision:main'
+            'vision = flying_drone.vision:main',
+            'control = flying_drone.control:main',
         ],
     },
 )

@@ -75,18 +75,38 @@ while True:
                     print("Direction detected :")
                     if class_id == 3:
                         print("Up")
+                        print("Moving Up")
                         tello.move_up(40)
+                        print("Up Complete")
+                        print("Moving Forward")
+                        tello.move_forward(20)
+                        print("Forward Complete")
                     elif class_id == 0:
                         print("Down")
+                        print("Moving Down")
                         tello.move_down(30)
+                        print("Down Complete")
+                        print("Moving Forward")
+                        tello.move_forward(20)
+                        print("Forward Complete")
                         # break
                     elif class_id == 1:
-                        tello.move_left(30)
                         print("Left")
+                        print("Moving Left")
+                        tello.move_left(30)
+                        print("Left Complete")
+                        print("Moving Forward")
+                        tello.move_forward(20)
+                        print("Forward Complete")
                         # break
                     else :
                         print("Right")
+                        print("Moving Right")
                         tello.move_right(40)
+                        print("Right Complete")
+                        print("Moving Forward")
+                        tello.move_forward(20)
+                        print("Forward Complete")
                         # break
             
                     # print("Before showing image via Matplotlib")
@@ -96,12 +116,16 @@ while True:
                     print("Recentering")
                     if class_id == 3:
                         tello.move_down(30)
+                        tello.move_back(20)
                     elif class_id == 0:
                         tello.move_up(30)
+                        tello.move_back(20)
                     elif class_id == 1:
                         tello.move_right(30)
+                        tello.move_back(20)
                     else:
                         tello.move_left(40)
+                        tello.move_back(20)
 
                     fig, ax = plt.subplots(figsize=(9,5))
                     ax.imshow(img, cmap="gray")
