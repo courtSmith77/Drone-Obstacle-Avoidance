@@ -59,11 +59,13 @@ class Drone(Node):
         msg_image.img_shape = image.shape
         self.pub_live_feed.publish(msg_image)
 
-        # try:
-        #     msg_img = self.bridge.cv2_to_imgmsg(image, "bgr8")
-        #     self.pub_img.publish(msg_img)
-        # except Exception:
-        #     self.get_logger().info("Image Publishing error")
+        try:
+            msg_img = self.bridge.cv2_to_imgmsg(image, "bgr8")
+            msg_img.header.stamp = self.get_clock().now().to_msg()
+            msg_img.header.frame_id = "world"
+            self.pub_img.publish(msg_img)
+        except Exception:
+            self.get_logger().info("Image Publishing error")
 
         if self.state == State.AVOID:
 

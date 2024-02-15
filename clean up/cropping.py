@@ -46,3 +46,83 @@ def perspective_transform(image, corners):
 
     return transformed_image
 
+def detect_arrow(model, img):
+
+    results = model.predict(img)
+
+    detected = None
+    for result in results[0].boxes.data.tolist():
+        x1, y1, x2, y2, score, detected = result
+
+    if detected is not None:
+        return [x1, y1, x2, y2]
+    else :
+        return None
+    
+def classify_direction(model, img, box):
+
+    yolo_corners = [[box[0],box[3]],[box[2],box[3]],[box[2],box[1]],[box[0],box[1]]] # top_l, top_r, bot_r, bot_l
+
+    transformed = perspective_transform(img, yolo_corners)
+    flipped = cv2.flip(transformed, -1)
+    img_depth = cv2.convertScaleAbs(flipped)
+
+    pred = model.predict(img_depth)
+
+    class_id = None
+    if pred is not None:
+        class_id = pred[0].probs.top1
+
+    return class_id
+
+def important_edge(classify, box):
+
+        # 0,1,2,3 (down,left,right,up)
+        if classify == 0:
+            return box[1]
+        elif classify == 1:
+            return box[0]
+        elif classify == 2:
+            return box[2]
+        elif classify == 3:
+            return box[3]
+
+def control_cmds(area, edge, classify):
+
+    if area > 45000:
+        fly_forward = 0
+    else:
+        fly_forward = 25
+    
+    if area < 15000:
+        fly_dist = 0
+    else :        
+        if classify == 0:
+            dist_from_center = 360 - edge
+            if dist_from_center < 100:
+                fly_dist = 20
+            else:
+                fly_dist = 0
+
+        elif classify == 1:
+            dist_from_center = 640 - edge
+            if dist_from_center < 200:
+                fly_dist = 20
+            else:
+                fly_dist = 0
+
+        elif classify == 2:
+            dist_from_center = 640 - edge
+            if dist_from_center > -200:
+                fly_dist = 20
+            else:
+                fly_dist = 0
+
+        elif classify == 3:
+            dist_from_center = 360 - edge
+            if dist_from_center > -100:
+                fly_dist = 20
+            else:
+                fly_dist = 0
+    
+    return fly_forward, fly_dist
