@@ -8,27 +8,6 @@ import os
 from cropping import detect_arrow, classify_direction, important_edge, control_cmds
 import tkinter as tk
 
-ended = False
-
-def key_press(event):
-    global ended
-    if event.char == 'q':
-        ended = True
-
-root = tk.Tk()
-root.title("Emergency Landing Interrupt")
-
-canvas = tk.Canvas(root, width=400, height=400)
-canvas.pack()
-canvas.focus_set()
-canvas.bind("<KeyPress>", key_press)
-
-model_path = os.path.join('.', 'model_weights', 'detect_best.pt')
-model_detect = YOLO(model_path) # load trained model
-
-model_path = os.path.join('.', 'model_weights', 'classify_best.pt')
-model_classify = YOLO(model_path) # load trained model
-
 # Create Tello Object
 tello = Tello()
 
@@ -38,7 +17,36 @@ print(f"Battery Life Percentage: {tello.get_battery()}")
 
 # Start the video stream
 tello.streamon()
-frame_reader = tello.get_frame_read()
+
+# create interrupt
+ended = False
+def key_press(event):
+    global ended
+    global tello
+    global frame_reader
+    if event.char == 'q':
+        ended = True
+    if event.char == "r":
+        tello.streamoff()
+        time.sleep(1)
+        tello.streamon()
+        frame_reader = tello.get_frame_read()
+
+
+root = tk.Tk()
+root.title("Keyboard Interrupts")
+
+canvas = tk.Canvas(root, width=400, height=400)
+canvas.pack()
+canvas.focus_set()
+canvas.bind("<KeyPress>", key_press)
+
+# load models
+model_path = os.path.join('.', 'model_weights', 'detect_best.pt')
+model_detect = YOLO(model_path) # load trained model
+
+model_path = os.path.join('.', 'model_weights', 'classify_best.pt')
+model_classify = YOLO(model_path) # load trained model
 
 tello.takeoff()
 
@@ -46,7 +54,7 @@ tello.takeoff()
 ended = False
 def main_loop():
     global ended
-    
+
     print("Entering While ...")
     no_detections = 0
     while not ended:
@@ -54,6 +62,7 @@ def main_loop():
         root.update_idletasks()
         root.update()
 
+        frame_reader = tello.get_frame_read()
         img = frame_reader.frame
 
         box = detect_arrow(model_detect, img)
@@ -76,27 +85,40 @@ def main_loop():
                         tello.move_down(dist)
                     if forward != 0:
                         tello.move_forward(forward)
+                    class_name = "down"
                 elif class_id == 1:  # left
                     if dist != 0:
                         tello.move_left(dist)
                     if forward != 0:
                         tello.move_forward(forward)
+                    class_name = "left"
                 elif class_id == 2:  # right
                     if dist != 0:
                         tello.move_right(dist)
                     if forward != 0:
                         tello.move_forward(forward)
+                    class_name = "right"
                 else :  # up
                     if dist != 0:
                         tello.move_up(dist)
                     if forward != 0:
                         tello.move_forward(forward)
+                    class_name = "up"
                 
             no_detections = 0
+
+            fig, ax = plt.subplots(figsize=(9,5))
+            ax.imshow(img, cmap="gray")
+            rect = patches.Rectangle((box[0], box[1]), abs(box[2]-box[0]), abs(box[3]-box[1]), linewidth=1, edgecolor='k', facecolor='none')
+            ax.add_patch(rect)
+            fig.suptitle(f"Detect Arrow = {class_name}", fontsize= 44)
+            plt.show()
+
         else:
             
-            if no_detections > 3 :
-                print("No detections 3 frames in a row")
+            no_detections += 1
+            if no_detections > 20 :
+                print("No detections 20 frames in a row")
                 print("Terminating ...")
                 ended = True
     

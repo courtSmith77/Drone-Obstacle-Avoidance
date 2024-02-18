@@ -50,12 +50,27 @@ def detect_arrow(model, img):
 
     results = model.predict(img)
 
-    detected = None
-    for result in results[0].boxes.data.tolist():
-        x1, y1, x2, y2, score, detected = result
+    # detected = None
+    # for result in results[0].boxes.data.tolist():
+    #     x1, y1, x2, y2, score, detected = result
 
-    if detected is not None:
-        return [x1, y1, x2, y2]
+    biggest_class = None
+    area = 0
+    boxes = []
+    classes = []
+    for result in results[0].boxes.data.tolist():
+        x1, y1, x2, y2, score, class_id = result
+        box_area = abs((x2-x1)*(y2-y1))
+        # boxes.append([x1,y1,x2,y2])
+        # classes.append(class_id)
+        if box_area > area:
+            area = box_area
+            biggest = [x1,y1,x2,y2]
+            biggest_class = class_id
+    
+
+    if biggest_class is not None:
+        return biggest
     else :
         return None
     
@@ -92,7 +107,7 @@ def control_cmds(area, edge, classify):
     if area > 45000:
         fly_forward = 0
     else:
-        fly_forward = 25
+        fly_forward = 40
     
     if area < 15000:
         fly_dist = 0
@@ -100,28 +115,28 @@ def control_cmds(area, edge, classify):
         if classify == 0:
             dist_from_center = 360 - edge
             if dist_from_center < 100:
-                fly_dist = 20
+                fly_dist = 25
             else:
                 fly_dist = 0
 
         elif classify == 1:
             dist_from_center = 640 - edge
             if dist_from_center < 200:
-                fly_dist = 20
+                fly_dist = 25
             else:
                 fly_dist = 0
 
         elif classify == 2:
             dist_from_center = 640 - edge
             if dist_from_center > -200:
-                fly_dist = 20
+                fly_dist = 25
             else:
                 fly_dist = 0
 
         elif classify == 3:
             dist_from_center = 360 - edge
             if dist_from_center > -100:
-                fly_dist = 20
+                fly_dist = 25
             else:
                 fly_dist = 0
     
