@@ -13,6 +13,7 @@ setup(
         ('share/' + package_name, ['config/classify_best.pt']),
         ('share/' + package_name, ['config/detect_best.pt']),
         ('share/' + package_name, ['launch/visual.launch.xml']),
+        ('share/' + package_name, ['config/view_live_feed.rviz']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

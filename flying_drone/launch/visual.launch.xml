@@ -9,6 +9,6 @@
 
     <node pkg="flying_drone" exec="control" />
 
-    <node pkg="rviz2" exec="rviz2" />
+    <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share flying_drone)/view_live_feed.rviz"/>
 
 </launch>

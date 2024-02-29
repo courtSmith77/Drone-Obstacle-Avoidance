@@ -1,0 +1,10 @@
+<launch>
+
+    <node pkg="fly_drone" exec="drone">
+        <param name="model_detect_path" value="$(find-pkg-share fly_drone)/detect_best.pt"/>
+        <param name="model_classify_path" value="$(find-pkg-share fly_drone)/classify_best.pt"/>
+    </node>
+
+    <node pkg="rviz2" exec="rviz2" args="-d $(find-pkg-share fly_drone)/view_live_feed.rviz"/>
+
+</launch>

@@ -94,7 +94,7 @@ def important_edge(classify, box):
 
         # 0,1,2,3 (down,left,right,up)
         if classify == 0:
-            return box[1]
+            return box[3]
         elif classify == 1:
             return box[0]
         elif classify == 2:
@@ -107,20 +107,22 @@ def control_cmds(area, edge, classify):
     if area > 45000:
         fly_forward = 0
     else:
-        fly_forward = 40
+        fly_forward = 30
     
-    if area < 15000:
+    if area < 20000:
         fly_dist = 0
     else :        
         if classify == 0:
             dist_from_center = 360 - edge
-            if dist_from_center < 100:
+            print(f"Distance from Center = {dist_from_center}")
+            if dist_from_center < 200:
                 fly_dist = 25
             else:
                 fly_dist = 0
 
         elif classify == 1:
             dist_from_center = 640 - edge
+            print(f"Distance from Center = {dist_from_center}")
             if dist_from_center < 200:
                 fly_dist = 25
             else:
@@ -128,13 +130,15 @@ def control_cmds(area, edge, classify):
 
         elif classify == 2:
             dist_from_center = 640 - edge
+            print(f"Distance from Center = {dist_from_center}")
             if dist_from_center > -200:
-                fly_dist = 25
+                fly_dist = 30
             else:
                 fly_dist = 0
 
         elif classify == 3:
             dist_from_center = 360 - edge
+            print(f"Distance from Center = {dist_from_center}")
             if dist_from_center > -100:
                 fly_dist = 25
             else:

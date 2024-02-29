@@ -24,8 +24,10 @@ print(f"Battery Life Percentage: {tello.get_battery()}")
 # Start the video Stream
 tello.streamon()
 
-# Get the frame reader
-frame_reader = tello.get_frame_read()
+# H, W, _ = tello.get_frame_read().frame.shape
+# output = cv2.VideoWriter()
+# four = cv2.VideoWriter_fourcc(*'DIVX')
+# output = cv2.VideoWriter('streaming_04.avi', four, 30, (W, H), True)
 
 class_id = None
 count = 0
@@ -33,13 +35,17 @@ while True:
     # In reality you want to display frames in a separate thread. Otherwise
     # they will freeze while the drone moves.
 
-    print('Before reading image frame')
+    # print('Before reading image frame')
 
     # Read a video frame from Tello
+    # Get the frame reader
+    frame_reader = tello.get_frame_read()
     img = frame_reader.frame
 
+    # output.write(img)
+
     if count > 1:
-        print('Running Model')
+        # print('Running Model')
 
         results = model_detect.predict(img)
 
@@ -54,7 +60,7 @@ while True:
             transformed = perspective_transform(img, yolo_corners)
             flipped = cv2.flip(transformed, -1)
 
-            print(f"Flipped depth dtype = {flipped.dtype}")
+            # img = cv2.rectangle(img, (x1,y2), (x2,y1), (0,0,0), 2)
 
             pred = model_classify.predict(flipped)
 
@@ -64,35 +70,13 @@ while True:
                 class_id = pred[0].probs.top1
                 classify_id = pred[0].names[class_id]
 
-                if class_id is not None:
-                    print(class_id)
-
-                    fig, ax = plt.subplots(figsize=(9,5))
-                    ax.imshow(img, cmap="gray")
-                    rect = patches.Rectangle((x1, y1), abs(x2-x1), abs(y2-y1), linewidth=1, edgecolor='k', facecolor='none')
-                    ax.add_patch(rect)
-                    fig.suptitle(f"Detect Arrow", fontsize= 44)
-
-                    fig1,ax1 = plt.subplots(figsize=(9,5))
-                    ax1.imshow(flipped)
-                    fig1.suptitle(f"Classify Arrow - {classify_id}", fontsize= 44)
-                    plt.show()
-            else:
-                fig, ax = plt.subplots(figsize=(9,5))
-                ax.imshow(img, cmap="gray")
-                rect = patches.Rectangle((x1, y1), abs(x2-x1), abs(y2-y1), linewidth=1, edgecolor='k', facecolor='none')
-                ax.add_patch(rect)
-                fig.suptitle(f"Detect Arrow", fontsize= 44)
-
-                fig1,ax1 = plt.subplots(figsize=(9,5))
-                ax1.imshow(flipped)
-                fig1.suptitle(f"No Class Detected", fontsize= 44)
-                plt.show()
-
-
-    if count > 7:
+    if count > 5:
         break
 
     count+=1
+                    
 
+# output.release()
 tello.streamoff()
+
+

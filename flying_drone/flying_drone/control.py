@@ -15,6 +15,49 @@ class State(Enum):
     FLY = (auto(),)
     HOVER = (auto(),)
 
+def control_cmds(area, edge, classify):
+
+    if area > 45000:
+        fly_forward = 0
+    else:
+        fly_forward = 20
+    
+    if area < 20000:
+        fly_dist = 0
+    else :        
+        if classify == 0:
+            dist_from_center = 360 - edge
+            print(f"Distance from Center = {dist_from_center}")
+            if dist_from_center < 200:
+                fly_dist = 20
+            else:
+                fly_dist = 0
+
+        elif classify == 1:
+            dist_from_center = 640 - edge
+            print(f"Distance from Center = {dist_from_center}")
+            if dist_from_center < 200:
+                fly_dist = 20
+            else:
+                fly_dist = 0
+
+        elif classify == 2:
+            dist_from_center = 640 - edge
+            print(f"Distance from Center = {dist_from_center}")
+            if dist_from_center > -200:
+                fly_dist = 20
+            else:
+                fly_dist = 0
+
+        elif classify == 3:
+            dist_from_center = 360 - edge
+            print(f"Distance from Center = {dist_from_center}")
+            if dist_from_center > -100:
+                fly_dist = 20
+            else:
+                fly_dist = 0
+    
+    return fly_forward, fly_dist
 
 class Control(Node):
 
@@ -41,7 +84,7 @@ class Control(Node):
         self.area = None
         self.curr_area = None
 
-        self.timer = self.create_timer(0.25, self.timer_callback)
+        self.timer = self.create_timer(0.01, self.timer_callback)
 
         self.state = State.WAIT
 
@@ -60,33 +103,9 @@ class Control(Node):
                 msg_cmd = Command()
                 msg_cmd.direction = self.classify
 
-                if self.curr_area > 45000:
-                    msg_cmd.fly_forward = 0
-                else:
-                    msg_cmd.fly_forward = 20
-                
-                if self.curr_area < 15000:
-                    msg_cmd.fly_dist = 0
-                else :        
-                    if self.curr_class == 0:
-                        dist_from_center = 360 - self.edge
-                        if dist_from_center < 100:
-                            msg_cmd.fly_dist = 20
-
-                    elif self.curr_class == 1:
-                        dist_from_center = 640 - self.edge
-                        if dist_from_center < 200:
-                            msg_cmd.fly_dist = 20
-
-                    elif self.curr_class == 2:
-                        dist_from_center = 640 - self.edge
-                        if dist_from_center > -200:
-                            msg_cmd.fly_dist = 20
-
-                    elif self.curr_class == 3:
-                        dist_from_center = 360 - self.edge
-                        if dist_from_center > -100:
-                            msg_cmd.fly_dist = 20
+                forward, direction = control_cmds(self.area, self.edge, self.classify)
+                msg_cmd.fly_dist = direction
+                msg_cmd.fly_forward = forward
                 
                 self.get_logger().info("Publishing command")
                 self.get_logger().info(f"Command: dir = {msg_cmd.direction}, dist = {msg_cmd.fly_dist}, forward = {msg_cmd.fly_forward}")
@@ -97,14 +116,12 @@ class Control(Node):
         if self.state == State.HOVER:
 
             msg_cmd = Command()
-            msg_cmd.direction = 4 # not a valid direction
+            msg_cmd.direction = 0 # not a valid direction
             msg_cmd.fly_dist = 0
             msg_cmd.fly_forward = 0
             self.pub_command.publish(msg_cmd)
 
             self.state = State.WAIT
-
-
 
     def callback_detect(self, msg):
         self.box = msg.box
@@ -118,7 +135,6 @@ class Control(Node):
         self.state = State.FLY
         
         return response
-
         
     def important_edge(self):
 

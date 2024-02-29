@@ -5,6 +5,8 @@ from flying_interfaces.msg import LiveFeed, Detection, Classify
 from ultralytics import YOLO
 import cv2
 import numpy as np
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
 
 
 
@@ -92,18 +94,20 @@ class Vision(Node):
         self.model_classify = YOLO(self.model_classify_path)
 
         # create subscriber
-        self.sub_live_feed = self.create_subscription(LiveFeed, "/live_feed", self.callback_livefeed, 10)
+        self.sub_image = self.create_subscription(Image, "/image", self.callback_image, 10)
         
         # create publishers
         self.pub_detect = self.create_publisher(Detection, "/detection", 10)
         self.pub_class = self.create_publisher(Classify, "/classify", 10)
 
+        self.bridge = CvBridge()
+
         self.state = State.CONNECTING_FEED
 
-        self.timer = self.create_timer(0.1, self.timer_callback)
+        self.timer = self.create_timer(0.01, self.timer_callback)
 
     def timer_callback(self):
-        """Call timer at 10 hz."""
+        """Call timer at 100 hz."""
 
         if self.state == State.CONNECTING_FEED:
             self.get_logger().info("Waiting for camera feed")
@@ -133,16 +137,13 @@ class Vision(Node):
                 self.pub_class.publish(msg_class)
 
                 self.state = State.DETECTING
-
-
-    def callback_livefeed(self, msg):
-
-        img_flat = np.array(msg.img_flat)
-        img_shape = msg.img_shape
-
-        self.live_img = img_flat.reshape(img_shape)
-
-        self.state = State.DETECTING
+    
+    def callback_image(self, msg):
+        try:
+            self.live_img = self.bridge.imgmsg_to_cv2(msg, "rgb8")
+            self.state = State.DETECTING
+        except CvBridgeError as e:
+            print(e)
 
 
 def main(args=None):
