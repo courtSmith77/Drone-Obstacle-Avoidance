@@ -8,7 +8,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
 from ultralytics import YOLO
-from .modules.helper import detect_arrow, classify_direction, important_edge, control_cmds
+from .modules.helper import detect_arrow, classify_direction, important_edge, control_cmds, symbol_center, special_cmds
 
 class State(Enum):
     """
@@ -19,6 +19,8 @@ class State(Enum):
 
     FLYING = (auto(),)
     HOVER = (auto(),)
+    SPECIAL_FUNCTION = (auto(),)
+    AVOID = (auto(),)
 
 class Drone(Node):
 
@@ -27,12 +29,15 @@ class Drone(Node):
 
         self.declare_parameter("model_detect_path", "")
         self.model_detect_path = self.get_parameter("model_detect_path").get_parameter_value().string_value
-        self.declare_parameter("model_classify_path", "")
-        self.model_classify_path = self.get_parameter("model_classify_path").get_parameter_value().string_value
-        
+        self.declare_parameter("model_classify_arrow_path", "")
+        self.model_classify_arrow_path = self.get_parameter("model_classify_arrow_path").get_parameter_value().string_value
+        self.declare_parameter("model_classify_symbol_path", "")
+        self.model_classify_symbol_path = self.get_parameter("model_classify_symbol_path").get_parameter_value().string_value
+
         # initialize model
         self.model_detect = YOLO(self.model_detect_path)
-        self.model_classify = YOLO(self.model_classify_path)
+        self.model_classify_arrow = YOLO(self.model_classify_arrow_path)
+        self.model_classify_symbol = YOLO(self.model_classify_symbol_path)
 
         # create publisher
         self.pub_img = self.create_publisher(Image, "/image", 10)
@@ -80,56 +85,106 @@ class Drone(Node):
 
         if self.state == State.FLYING:
 
-            box = detect_arrow(self.model_detect, self.image)
+            self.box = detect_arrow(self.model_detect, self.image)
 
-            if box is not None:
+            if self.box is not None:
 
                 # publish image with box on it
-                img_box = cv2.rectangle(self.image, (int(box[0]),int(box[3])), (int(box[2]), int(box[1])), color=(0,0,0), thickness=2)
+                img_box = cv2.rectangle(self.image, (int(self.box[0]),int(self.box[3])), (int(self.box[2]), int(self.box[1])), color=(0,0,0), thickness=2)
                 resized = cv2.resize(img_box, (0,0), fx=0.25, fy=0.25, interpolation=cv2.INTER_AREA)
                 msg_img = self.bridge.cv2_to_imgmsg(resized, "rgb8")
                 msg_img.header.stamp = self.get_clock().now().to_msg()
                 msg_img.header.frame_id = "world"
                 self.pub_img.publish(msg_img)
 
-                area = abs((box[2]-box[0]) * (box[3] - box[1]))
-                class_id = classify_direction(self.model_classify, self.image, box)
+                img_ratio = (self.box[3]-self.box[1])/(self.box[2]-self.box[0])
 
-                if class_id is not None:
+                if (img_ratio < 1.1) & (img_ratio > 0.82):
+                    self.state = State.SPECIAL_FUNCTION
+                else :
+                    self.state = State.AVOID
 
-                    edge = important_edge(class_id, box)
-
-                    forward, dist = control_cmds(self, area, edge, class_id)
-                    print(f"Command: dir = {class_id}, dist = {dist}, forward = {forward}")
-                
-                    # 0,1,2,3 (down,left,right,up)
-                    if forward == 0 and dist == 0:
-                        self.get_logger().info("Do nothing")
-                    else :
-                        if class_id == 0:
-                            self.get_logger().info("Flying Down")
-                            self.drone.go_xyz_speed(forward, 0, -dist, 15)
-                        elif class_id == 1:
-                            self.get_logger().info("Flying Left")
-                            self.drone.go_xyz_speed(forward, dist, 0, 15)
-                        elif class_id == 2:
-                            self.get_logger().info("Flying Right")
-                            self.drone.go_xyz_speed(forward, -dist, 0, 15)
-                        elif class_id == 3:
-                            self.get_logger().info("Flying Up")
-                            self.drone.go_xyz_speed(forward, 0, dist, 15)
-                
                 self.no_detections = 0
             
             else:
-                
+                    
                 self.no_detections += 1
                 if self.no_detections > 20 :
                     self.get_logger().info("No detections 20 frames in a row")
                     self.get_logger().info("Terminating ...")
                     self.state = State.HOVER
 
+        if self.state == State.AVOID :
 
+            class_id = classify_direction(self.model_class_arr, self.image, self.box)
+
+            if class_id is not None:
+                
+                area = abs((self.box[2]-self.box[0]) * (self.box[3]-self.box[1]))
+                edge = important_edge(class_id, self.box)
+                x_c, y_c = symbol_center(self.box)
+
+                forward, dist, ortho = control_cmds(self, area, edge, x_c, y_c, class_id)
+                print(f"Command: dir = {class_id}, dist = {dist}, forward = {forward}, ortho = {ortho}")
+            
+                # 0,1,2,3 (down,left,right,up)
+                if forward == 0 and dist == 0 and ortho == 0:
+                    self.get_logger().info("Do nothing")
+                else :
+                    if class_id == 0:
+                        self.get_logger().info("Flying Down")
+                        self.drone.go_xyz_speed(forward, ortho, -dist, 15)
+                    elif class_id == 1:
+                        self.get_logger().info("Flying Left")
+                        self.drone.go_xyz_speed(forward, dist, ortho, 15)
+                    elif class_id == 2:
+                        self.get_logger().info("Flying Right")
+                        self.drone.go_xyz_speed(forward, -dist, ortho, 15)
+                    elif class_id == 3:
+                        self.get_logger().info("Flying Up")
+                        self.drone.go_xyz_speed(forward, ortho, dist, 15)
+                
+            self.state = State.FLYING
+        
+        if self.state == State.SPECIAL_FUNCTION :
+            
+            class_id = classify_direction(self.model_class_sym, self.image, self.box)
+
+            if class_id is not None:
+                
+                area = abs((self.box[2]-self.box[0]) * (self.box[3]-self.box[1]))
+                x_c, y_c = symbol_center(self.box)
+
+                forward, x, y = special_cmds(self, area, x_c, y_c, class_id)
+                print(f"Command: dir = {class_id}, forward = {forward}, x = {x}, y = {y}")
+
+                # 0,1 (star, uturn)
+                if class_id == 0:
+                    
+                    if forward == 0 and x == 0 and y == 0:
+                        self.get_logger().info("You Completed the Course!")
+                        self.get_logger().info("Flipping!")
+                        self.drone.flip("b")
+                        self.state = State.HOVER
+                    else:
+                        self.get_logger().info("Moving closer to Symbol")
+                        self.drone.go_xyz_speed(forward, x, y, 15)
+                        self.state = State.FLYING
+                
+                elif class_id == 1:
+
+                    if forward == 0 and x == 0 and y == 0:
+                        self.get_logger().info("Turning Around")
+                        self.drone.rotate_clockwise(180)
+                    else:
+                        self.get_logger().info("Moving closer to Symbol")
+                        self.drone.go_xyz_speed(forward, x, y, 15)
+                    self.state = State.FLYING
+                
+                else:
+                    self.state = State.FLYING
+            else:
+                self.state = State.FLYING
 
     def connect_drone(self):
         """Connects to drone and begin camera feed.

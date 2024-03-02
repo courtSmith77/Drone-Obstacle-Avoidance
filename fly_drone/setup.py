@@ -15,6 +15,7 @@ setup(
         ('share/' + package_name, ['config/detect_best.pt']),
         ('share/' + package_name, ['launch/visual.launch.xml']),
         ('share/' + package_name, ['config/view_live_feed.rviz']),
+        ('share/' + package_name, ['config/symbol_best.pt']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

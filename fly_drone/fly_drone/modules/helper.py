@@ -99,7 +99,14 @@ def important_edge(classify, box):
         elif classify == 3:
             return box[3]
 
-def control_cmds(self, area, edge, classify):
+def symbol_center(box):
+
+    xc = box[0] + 0.5*(box[2] - box[0])
+    yc = box[1] + 0.5*(box[3] - box[1])
+
+    return xc, yc
+
+def control_cmds(self, area, edge, x_c, y_c, classify):
 
     if area > 45000:
         fly_forward = 0
@@ -108,6 +115,7 @@ def control_cmds(self, area, edge, classify):
     
     if area < 15000:
         fly_dist = 0
+        ortho_dist = 0
     else :        
         if classify == 0:
             dist_from_center = 360 - edge
@@ -118,6 +126,12 @@ def control_cmds(self, area, edge, classify):
             #     fly_dist = 0
             fly_dist = 20
 
+            # determine orthogonal movement
+            if abs(x_c - 640) > 200 :
+                ortho_dist = -20*(x_c - 640)/abs(x_c - 640)
+            else :
+                ortho_dist = 0
+
         elif classify == 1:
             dist_from_center = 640 - edge
             self.get_logger().info(f"Distance from Center = {dist_from_center}")
@@ -127,6 +141,12 @@ def control_cmds(self, area, edge, classify):
             #     fly_dist = 0
             fly_dist = 20
 
+            # determine orthogonal movement
+            if abs(y_c - 360) > 100 :
+                ortho_dist = 20*(y_c - 360)/abs(y_c - 360)
+            else :
+                ortho_dist = 0
+
         elif classify == 2:
             dist_from_center = 640 - edge
             self.get_logger().info(f"Distance from Center = {dist_from_center}")
@@ -135,6 +155,12 @@ def control_cmds(self, area, edge, classify):
             # else:
             #     fly_dist = 0
             fly_dist = 20
+            
+            # determine orthogonal movement
+            if abs(y_c - 360) > 100 :
+                ortho_dist = 20*(y_c - 360)/abs(y_c - 360)
+            else :
+                ortho_dist = 0
 
         elif classify == 3:
             dist_from_center = 360 - edge
@@ -144,5 +170,36 @@ def control_cmds(self, area, edge, classify):
             # else:
             #     fly_dist = 0
             fly_dist = 20
+
+            # determine orthogonal movement
+            if abs(x_c - 640) > 200 :
+                ortho_dist = -20*(x_c - 640)/abs(x_c - 640)
+            else :
+                ortho_dist = 0
     
-    return fly_forward, fly_dist
+    return fly_forward, fly_dist, ortho_dist
+
+def special_cmds(self, area, x_c, y_c, classify):
+
+    if area > 70000:
+        forward_dist = 0
+    else:
+        forward_dist = 20
+    
+    if (area < 15000) & (area > 60000):
+        x_dist = 0
+        y_dist = 0
+    else: # center on the robot       
+        
+        if abs(y_c - 360) > 100 :
+            y_dist = 20*(y_c - 360)/abs(y_c - 360)
+        else :
+            y_dist = 0
+
+        if abs(x_c - 640) > 200 :
+            x_dist = -20*(x_c - 640)/abs(x_c - 640)
+        else :
+            x_dist = 0
+    
+    return forward_dist, x_dist, y_dist
+
