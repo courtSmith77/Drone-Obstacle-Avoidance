@@ -64,11 +64,11 @@ class Drone(Node):
     def __init__(self):
         super().__init__("drone")
 
-        self.declare_parameter("model_detect_path", "/home/csmith/Desktop/School/Winter 2024/winter Project/ws/Winter-Project/fly_drone/config/detect_best.pt")
+        self.declare_parameter("model_detect_path", "")
         self.model_detect_path = self.get_parameter("model_detect_path").get_parameter_value().string_value
-        self.declare_parameter("model_classify_arrow_path", "/home/csmith/Desktop/School/Winter 2024/winter Project/ws/Winter-Project/fly_drone/config/classify_best.pt")
+        self.declare_parameter("model_classify_arrow_path", "")
         self.model_classify_arrow_path = self.get_parameter("model_classify_arrow_path").get_parameter_value().string_value
-        self.declare_parameter("model_classify_symbol_path", "/home/csmith/Desktop/School/Winter 2024/winter Project/ws/Winter-Project/fly_drone/config/symbol_best.pt")
+        self.declare_parameter("model_classify_symbol_path", "")
         self.model_classify_symbol_path = self.get_parameter("model_classify_symbol_path").get_parameter_value().string_value
 
         # initialize models
