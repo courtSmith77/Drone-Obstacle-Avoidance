@@ -9,9 +9,9 @@ import matplotlib.patches as patches
 # Set device (GPU if available, else CPU)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# YOLO Model
+# YOLO Detection
 model_path = "./runs/detect/train/weights/best.pt"
-model_yolo = YOLO(model_path) # load trained model
+model_yolo = YOLO(model_path)
 
 # Image folder
 test_path = "./data/images/test"
