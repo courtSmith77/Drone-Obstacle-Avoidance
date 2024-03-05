@@ -1,6 +1,6 @@
 # fly_drone
 
-This project utilizes the Tello drone and associated SDK to navigate the drone through a series of obstacles. Several Ultralytics YOLOv8 models were trained to detect and classify symbols for drone control.
+A ROS node that utilizes the Tello drone and associated SDK to navigate the drone through a series of obstacles. Several Ultralytics YOLOv8 models were trained to detect and classify symbols for drone control.
 
 ## How to run
 1. run the drone node and launch rviz by running `ros2 launch fly_drone visual.launch.xml`
