@@ -20,11 +20,13 @@
 
 - Training model:
     - Run `yolo_train_detection.py` to train the model
-    - Model analysis metrics and final weights will be found in the newly creates `run` folder
+    - Model analysis metrics and final weights will be found in the newly creates `runs/detect/train` folder
 
 ## Classification Model
 - Classification data:
-    - Crop each image using `crop_images_with_detector.py` the trained detection model and place in following structure
+    - Crop each image using `crop_images_with_detector.py` and the trained detection model
+    - Place the cropped images from the `cropped` folder into following structure
+    - Create a new data folder for each classifier 
 
     ├─ data_classification
        ├─ test
@@ -42,15 +44,7 @@
            └─ class_label3
               └─ images.jpg
 
-
-
-- yaml file (absolute path)
-- creating images for the classifier from the detection
-
-## YOLO
-- detection
-    - uses yaml
-- classify
-    - uses model structure
-- results
+- Training model:
+    - Run `yolo_train_classifier_arrows.py` and `yolo_train_classifier_special.py` to train each model
+    - Model analysis metrics and final weights will be found in the newly creates `runs/classify/train` and `runs/classify/train1` folders
 
