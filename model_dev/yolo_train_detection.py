@@ -1,17 +1,11 @@
 from ultralytics import YOLO
 import torch
 
-# Load a model
-model = YOLO("yolov8n.yaml")  # build a new model from scratch
-# ^^ using the yolov8 nano model
+# # Load pretrained yolov8 nano model
+model = YOLO("yolov8n.yaml")
 
 if torch.cuda.is_available():
-
-    # Use the model with cuda 
-    model.train(data="trainyaml.yaml", epochs=500, device=0)  # train the model
-
+    model.train(data="trainyaml.yaml", epochs=500, device=0)
 else :
-    model.train(data="trainyaml.yaml", epochs=500)  # train the model
+    model.train(data="trainyaml.yaml", epochs=500)
 
-# metrics = model.val()
-# print(metrics)
