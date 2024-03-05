@@ -20,7 +20,7 @@ tello = Tello()
 # Connect to Tello
 tello.connect()
 
-time.sleep(3)
+time.sleep(1)
 
 print(f"Battery Life Percentage: {tello.get_battery()}")
 
@@ -31,25 +31,17 @@ tello.streamon()
 frame_reader = tello.get_frame_read()
 
 tello.takeoff()
-print("############ took off")
 time.sleep(4)
-# tello.move_up(25)
-# print("############ initial move up")
-# time.sleep(2)
+
 
 class_id = None
 count = 0
 while True:
-    # In reality you want to display frames in a separate thread. Otherwise
-    # they will freeze while the drone moves.
-
-    print('Before reading image frame')
 
     # Read a video frame from Tello
     img = frame_reader.frame
 
     if count > 1:
-        print('Running Model')
 
         results = model_detect.predict(img)
 
@@ -72,46 +64,22 @@ while True:
                 classify_id = pred[0].names[class_id]
 
                 if class_id is not None:
-                    print("Direction detected :")
                     if class_id == 3:
-                        print("Up")
                         print("Moving Up")
                         tello.move_up(40)
                         print("Up Complete")
-                        print("Moving Forward")
-                        tello.move_forward(20)
-                        print("Forward Complete")
                     elif class_id == 0:
-                        print("Down")
                         print("Moving Down")
                         tello.move_down(30)
                         print("Down Complete")
-                        print("Moving Forward")
-                        tello.move_forward(20)
-                        print("Forward Complete")
-                        # break
                     elif class_id == 1:
-                        print("Left")
                         print("Moving Left")
                         tello.move_left(30)
                         print("Left Complete")
-                        print("Moving Forward")
-                        tello.move_forward(20)
-                        print("Forward Complete")
-                        # break
                     else :
-                        print("Right")
                         print("Moving Right")
                         tello.move_right(40)
                         print("Right Complete")
-                        print("Moving Forward")
-                        tello.move_forward(20)
-                        print("Forward Complete")
-                        # break
-            
-                    # print("Before showing image via Matplotlib")
-
-                    time.sleep(4)
 
                     print("Recentering")
                     if class_id == 3:
@@ -138,28 +106,19 @@ while True:
                     fig1.suptitle(f"Classify Arrow - {classify_id}", fontsize= 44)
                     plt.show()
 
-            # tello.move_up(40)
-
-            # time.sleep(3)
-
         else :
 
             print("No Detections")
             plt.imshow(img, cmap="gray")
             plt.show()
 
-        # print("########### Change Direction NOW !!")
-        # time.sleep(15)
 
     if count > 3:
         break
 
     count+=1
 
-# cv2.destroyWindow('Tello View')
-# cv2.destroyAllWindows()
 tello.streamoff()
-
 tello.land()
 
 

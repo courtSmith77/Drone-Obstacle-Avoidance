@@ -24,28 +24,16 @@ print(f"Battery Life Percentage: {tello.get_battery()}")
 # Start the video Stream
 tello.streamon()
 
-# H, W, _ = tello.get_frame_read().frame.shape
-# output = cv2.VideoWriter()
-# four = cv2.VideoWriter_fourcc(*'DIVX')
-# output = cv2.VideoWriter('streaming_04.avi', four, 30, (W, H), True)
 
 class_id = None
 count = 0
 while True:
-    # In reality you want to display frames in a separate thread. Otherwise
-    # they will freeze while the drone moves.
 
-    # print('Before reading image frame')
-
-    # Read a video frame from Tello
-    # Get the frame reader
     frame_reader = tello.get_frame_read()
     img = frame_reader.frame
 
-    # output.write(img)
 
     if count > 1:
-        # print('Running Model')
 
         results = model_detect.predict(img)
 
@@ -59,8 +47,6 @@ while True:
 
             transformed = perspective_transform(img, yolo_corners)
             flipped = cv2.flip(transformed, -1)
-
-            # img = cv2.rectangle(img, (x1,y2), (x2,y1), (0,0,0), 2)
 
             pred = model_classify.predict(flipped)
 
@@ -76,7 +62,6 @@ while True:
     count+=1
                     
 
-# output.release()
 tello.streamoff()
 
 
