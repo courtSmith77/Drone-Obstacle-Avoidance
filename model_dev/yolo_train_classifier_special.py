@@ -5,6 +5,6 @@ import torch
 model = YOLO("yolov8n-cls.pt")
 
 if torch.cuda.is_available():
-    model.train(data="./special_classes", epochs=500, device=0)
+    model.train(data="./data_class_special", epochs=500, device=0)
 else :
-    model.train(data="./special_classes", epochs=500)
+    model.train(data="./data_class_special", epochs=500)
