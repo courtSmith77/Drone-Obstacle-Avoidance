@@ -1,4 +1,4 @@
-path: ./model_dev/data # dataset root dir - absolute path
+path: ./model_dev/data_detection # dataset root dir - absolute path
 train: images/train # train images (relative to 'path')
 val: images/test # val images (relative to 'path')
 
