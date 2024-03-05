@@ -200,7 +200,7 @@ class Drone(Node):
                     
                     if forward == 0 and x == 0 and y == 0:
 
-                        enter = input("Flip now? y/n")
+                        enter = input("Safe to Flip? y/n")
                         if enter == "y":
                             self.get_logger().info("You Completed the Course!")
                             self.get_logger().info("Flipping!")

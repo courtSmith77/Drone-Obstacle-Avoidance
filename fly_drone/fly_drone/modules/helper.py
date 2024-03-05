@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 
-##### Begin Citation 1 #####
 def order_corner_points(corners):
     """Separates corners into individual points.
     
@@ -53,7 +52,6 @@ def perspective_transform(image, corners):
     transformed_image = cv2.warpPerspective(image, matrix, (width, height))
 
     return transformed_image
-##### End Citation 1 #####
 
 def detect_arrow(model, img):
     """Detects arrow within the image.

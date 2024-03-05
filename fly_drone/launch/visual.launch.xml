@@ -1,6 +1,6 @@
 <launch>
 
-    <node pkg="fly_drone" exec="drone">
+    <node pkg="fly_drone" exec="drone" launch-prefix="xterm -e">
         <param name="model_detect_path" value="$(find-pkg-share fly_drone)/detect_best.pt"/>
         <param name="model_classify_arrow_path" value="$(find-pkg-share fly_drone)/classify_best.pt"/>
         <param name="model_classify_symbol_path" value="$(find-pkg-share fly_drone)/symbol_best.pt"/>
