@@ -4,8 +4,7 @@ import matplotlib.patches as patches
 from ultralytics import YOLO
 import os
 
-
-model_path = os.path.join('.', 'runs', 'detect', 'train', 'weights', 'best.pt')
+model_path = os.path.join('..', 'model_dev', 'runs', 'detect', 'train', 'weights', 'best.pt')
 
 model = YOLO(model_path) # load trained model
 
