@@ -10,14 +10,14 @@ import matplotlib.patches as patches
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # YOLO Detection
-model_path = "./runs/detect/train/weights/best.pt"
+model_path = "../model_dev/runs/detect/train/weights/best.pt"
 model_yolo = YOLO(model_path)
 
 # Image folder
-test_path = "./data/images/test"
+test_path = "../model_dev/data_detection/images/test"
 
 # YOLO Classifier
-class_path = "./runs/classify/train/weights/best.pt"
+class_path = "../model_dev/runs/classify/train/weights/best.pt"
 model_class = YOLO(class_path)
 
 count = 0
