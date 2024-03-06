@@ -5,7 +5,7 @@ A ROS node that utilizes the Tello drone and associated SDK to navigate the dron
 ## How to run
 1. run the drone node and launch rviz by running `ros2 launch fly_drone visual.launch.xml`
 3. To start the drone run `ros2 service call /takeoff std_srvs/srv/Empty`
-4. Once the drone reaches the end of the course and is close to the star symbol, the command line in the additional window will prompt you if it is safe to flip. Submit enter 'y' if yes and 'n' if no.
+4. Once the drone reaches the end of the course and is close to the star symbol, the command line in the additional window will prompt you if it is safe to flip. Enter 'y' if yes and 'n' if no.
 5. To land the drone run `ros2 service call /land std_srvs/srv/Empty`
 
 ## Node
