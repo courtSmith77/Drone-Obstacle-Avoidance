@@ -50,5 +50,5 @@
 
 - Training model:
     - Run `yolo_train_classifier_arrows.py` and `yolo_train_classifier_special.py` to train each model
-    - Model analysis metrics and final weights will be found in the newly creates `runs/classify/train` and `runs/classify/train1` folders
+    - Model analysis metrics and final weights will be found in the newly created `runs/classify/train` and `runs/classify/train1` folders
 
